@@ -20,4 +20,8 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin {
             "value": implementation.echo(value)
         ])
     }
+    
+    @objc func canMakePayments(_ call: CAPPluginCall) {
+        
+    }
 }

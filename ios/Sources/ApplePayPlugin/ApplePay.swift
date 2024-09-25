@@ -5,4 +5,9 @@ import Foundation
         print(value)
         return value
     }
+    
+    @objc public func canMakePayments(_ value: Bool) -> Bool {
+        print(value)
+        return value
+    }
 }
