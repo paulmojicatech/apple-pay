@@ -1,6 +1,6 @@
 export interface ApplePayPlugin {
   echo(options: { value: string }): Promise<{ value: string }>;
 
-  canMakePayments(): Promise<{ value: boolean }>;
+  canMakePayments(): Promise<{ canMakePayments: boolean }>;
 
 }

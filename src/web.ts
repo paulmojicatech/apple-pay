@@ -7,4 +7,8 @@ export class ApplePayWeb extends WebPlugin implements ApplePayPlugin {
     console.log('ECHO', options);
     return options;
   }
+
+  async canMakePayments(): Promise<{ canMakePayments: boolean }> {
+    return { canMakePayments: false };
+  }
 }
