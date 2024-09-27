@@ -8,4 +8,9 @@ public class ApplePay {
         Log.i("Echo", value);
         return value;
     }
+
+    public Boolean canMakePayments() {
+        Log.i("canMakePayments", "false");
+        return false;
+    }
 }

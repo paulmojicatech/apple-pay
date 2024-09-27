@@ -54,7 +54,7 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorization
         paymentRequest.paymentSummaryItems = paymentSummaryItems.compactMap { item in
             guard let label = item["label"] as? String,
                   let amountString = item["amount"] as? String,
-                  let amount = NSDecimalNumber(string: amountString) else {
+                  let amount = NSDecimalNumber(string: amountString) as? NSDecimalNumber else {
                     return nil
                 }
             return PKPaymentSummaryItem(label: label, amount: amount)
@@ -76,6 +76,12 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorization
     public func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController, didAuthorizePayment payment: PKPayment, handler completion: @escaping (PKPaymentAuthorizationResult) -> Void) {
         // Handle the authorized payment here
         completion(PKPaymentAuthorizationResult(status: .success, errors: nil))
+
+        // Notify the bridge that the payment was successful
+        self.notifyListeners("paymentSuccess", data: [
+            "status": "success",
+            "paymentData": payment.token.paymentData.base64EncodedString()
+        ])
     }
 
     public func paymentAuthorizationViewControllerDidFinish(_ controller: PKPaymentAuthorizationViewController) {

@@ -19,4 +19,11 @@ public class ApplePayPlugin extends Plugin {
         ret.put("value", implementation.echo(value));
         call.resolve(ret);
     }
+
+    @PluginMethod
+    public void canMakePayments(PluginCall call) {
+        JSObject ret = new JSObject();
+        ret.put("canMakePayments", implementation.canMakePayments());
+        call.resolve(ret);
+    }
 }
