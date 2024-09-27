@@ -15,6 +15,8 @@ npx cap sync
 
 * [`echo(...)`](#echo)
 * [`canMakePayments()`](#canmakepayments)
+* [`showApplePaySheet(...)`](#showapplepaysheet)
+* [Interfaces](#interfaces)
 
 </docgen-index>
 
@@ -45,5 +47,43 @@ canMakePayments() => Promise<{ canMakePayments: boolean; }>
 **Returns:** <code>Promise&lt;{ canMakePayments: boolean; }&gt;</code>
 
 --------------------
+
+
+### showApplePaySheet(...)
+
+```typescript
+showApplePaySheet(options: ApplePayRequestOptions) => Promise<{ success: boolean; }>
+```
+
+| Param         | Type                                                                      |
+| ------------- | ------------------------------------------------------------------------- |
+| **`options`** | <code><a href="#applepayrequestoptions">ApplePayRequestOptions</a></code> |
+
+**Returns:** <code>Promise&lt;{ success: boolean; }&gt;</code>
+
+--------------------
+
+
+### Interfaces
+
+
+#### ApplePayRequestOptions
+
+| Prop                       | Type                              |
+| -------------------------- | --------------------------------- |
+| **`merchantId`**           | <code>string</code>               |
+| **`countryCode`**          | <code>string</code>               |
+| **`currencyCode`**         | <code>string</code>               |
+| **`supportedNetworks`**    | <code>string[]</code>             |
+| **`merchantCapabilities`** | <code>string[]</code>             |
+| **`paymentSummaryItems`**  | <code>PaymentSummaryItem[]</code> |
+
+
+#### PaymentSummaryItem
+
+| Prop         | Type                |
+| ------------ | ------------------- |
+| **`label`**  | <code>string</code> |
+| **`amount`** | <code>string</code> |
 
 </docgen-api>

@@ -1,6 +1,6 @@
 import { WebPlugin } from '@capacitor/core';
 
-import type { ApplePayPlugin } from './definitions';
+import type { ApplePayPlugin, ApplePayRequestOptions } from './definitions';
 
 export class ApplePayWeb extends WebPlugin implements ApplePayPlugin {
   async echo(options: { value: string }): Promise<{ value: string }> {
@@ -10,5 +10,10 @@ export class ApplePayWeb extends WebPlugin implements ApplePayPlugin {
 
   async canMakePayments(): Promise<{ canMakePayments: boolean }> {
     return { canMakePayments: false };
+  }
+
+  async showApplePaySheet(options: ApplePayRequestOptions): Promise<{ success: boolean; }> {
+      console.log('showApplePaySheet', options);
+      return { success: false };
   }
 }

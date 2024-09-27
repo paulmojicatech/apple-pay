@@ -1,6 +1,6 @@
 {
   "name": "apple-pay",
-  "version": "0.0.2",
+  "version": "0.0.6",
   "description": "Capacitor plugin to integrate Apple Pay into application",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",

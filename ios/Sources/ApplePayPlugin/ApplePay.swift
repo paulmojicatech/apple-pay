@@ -10,4 +10,9 @@ import Foundation
         print(value)
         return value
     }
+
+    @objc public func showApplePaySheet(_ value: Bool) -> Bool {
+        print("showApplePaySheet")
+        return value
+    }
 }
