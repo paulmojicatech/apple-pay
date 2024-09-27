@@ -5,7 +5,7 @@ Capacitor plugin to integrate Apple Pay into application
 ## Install
 
 ```bash
-npm install apple-pay
+npm install @paulmojicatech/apple-pay
 npx cap sync
 ```
 
