@@ -68,4 +68,5 @@ captures
 
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild
-apple-pay-0.0.2.tgz
+**/*.tgz
+
