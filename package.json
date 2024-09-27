@@ -1,5 +1,5 @@
 {
-  "name": "apple-pay",
+  "name": "@paulmojicatech/apple-pay",
   "version": "0.0.9",
   "description": "Capacitor plugin to integrate Apple Pay into application",
   "main": "dist/plugin.cjs.js",
