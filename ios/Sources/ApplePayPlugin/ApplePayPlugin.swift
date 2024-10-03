@@ -65,30 +65,48 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorization
     // Add recurring summary items if provided
     else if let recurringSummaryItems = call.getArray("recurringSummaryItems", [String: Any].self) {
       if #available(iOS 16.0, *) {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
         var recurringPaymentsToAdd: [PKRecurringPaymentSummaryItem] = []
         recurringSummaryItems.forEach{ item in
           guard let label = item["label"] as? String,
                 let amountString = item["amount"] as? String,
                 let amount = NSDecimalNumber(string: amountString) as? NSDecimalNumber,
                 let startDateString = item["startDate"] as? String,
-                let startDate = ISO8601DateFormatter().date(from: startDateString),
-                let intervalUnit = item["intervalUnit"] as? NSCalendar.Unit,
-                let intervalCount = item["intervalCount"] as? Int else {
+                let intervalUnitString = item["intervalUnit"] as? String,                
+                let url = URL(string: item["managementURL"] as! String) else {
             call.reject("Invalid recurring payment item")
             return
           }
-          
+          guard let intervalCount = item["intervalCount"] as? Int else {            
+            return 1
+          }
+          guard let startDate = formatter.date(from: startDateString) else {
+              call.reject("Invalid date format for startDate: \(startDateString)")
+              return
+          }
+          // get interval unit
+          var intervalUnit: NSCalendar.Unit = .month
+          if (intervalUnitString == "day") {
+            intervalUnit = .day
+          } else if (intervalUnitString == "year") {
+            intervalUnit = .year
+          } else if (intervalUnitString == "hour") {
+            intervalUnit = .hour
+          } else if (intervalUnitString == "minute") {
+            intervalUnit = .minute
+          }
           let recurringItem = PKRecurringPaymentSummaryItem(label: label, amount: amount)
           recurringItem.startDate = startDate
           recurringItem.intervalUnit = intervalUnit
           recurringItem.intervalCount = intervalCount
-          guard let url = item["managementURL"] as? URL else {
-            call.reject("Invalid recurring payment item")
-            return;
+          if (paymentRequest.recurringPaymentRequest == nil) {
+            let recurringPaymentRequest = PKRecurringPaymentRequest(paymentDescription:label, regularBilling:recurringItem, managementURL: url)
+            paymentRequest.recurringPaymentRequest = recurringPaymentRequest
           }
-          let recurringPaymentRequest = PKRecurringPaymentRequest(paymentDescription:label, regularBilling:recurringItem, managementURL: url)
-          paymentRequest.recurringPaymentRequest = recurringPaymentRequest
+          recurringPaymentsToAdd.append(recurringItem)
         }
+        paymentRequest.paymentSummaryItems = recurringPaymentsToAdd
         
       } else {
         call.reject("Recurring payments are not supported on version of iOS")

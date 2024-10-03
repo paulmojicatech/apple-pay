@@ -1,5 +1,7 @@
 import type { ListenerCallback, PluginListenerHandle } from '@capacitor/core';
 
+export type RecurringPaymentIntervalUnit = 'day' | 'week' | 'month' | 'year';
+
 export interface PaymentSummaryItem {
   label: string;
   amount: string;
@@ -7,7 +9,7 @@ export interface PaymentSummaryItem {
 
 export interface RecurrentPaymentSummaryItem extends PaymentSummaryItem {
   startDate: string;
-  intervalUnit: string;
+  intervalUnit: RecurringPaymentIntervalUnit;
   managementURL: string;
   intervalCount?: number;
 }

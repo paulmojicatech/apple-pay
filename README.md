@@ -108,12 +108,12 @@ addListener(eventName: string, listenerFunc: ListenerCallback) => Promise<Plugin
 
 #### RecurrentPaymentSummaryItem
 
-| Prop                | Type                |
-| ------------------- | ------------------- |
-| **`startDate`**     | <code>string</code> |
-| **`intervalUnit`**  | <code>string</code> |
-| **`managementURL`** | <code>string</code> |
-| **`intervalCount`** | <code>number</code> |
+| Prop                | Type                                                                                  |
+| ------------------- | ------------------------------------------------------------------------------------- |
+| **`startDate`**     | <code>string</code>                                                                   |
+| **`intervalUnit`**  | <code><a href="#recurringpaymentintervalunit">RecurringPaymentIntervalUnit</a></code> |
+| **`managementURL`** | <code>string</code>                                                                   |
+| **`intervalCount`** | <code>number</code>                                                                   |
 
 
 #### PluginListenerHandle
@@ -124,6 +124,11 @@ addListener(eventName: string, listenerFunc: ListenerCallback) => Promise<Plugin
 
 
 ### Type Aliases
+
+
+#### RecurringPaymentIntervalUnit
+
+<code>'day' | 'week' | 'month' | 'year'</code>
 
 
 #### ListenerCallback
