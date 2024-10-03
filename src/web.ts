@@ -1,3 +1,4 @@
+import type { ListenerCallback, PluginListenerHandle } from '@capacitor/core';
 import { WebPlugin } from '@capacitor/core';
 
 import type { ApplePayPlugin, ApplePayRequestOptions } from './definitions';
@@ -15,5 +16,9 @@ export class ApplePayWeb extends WebPlugin implements ApplePayPlugin {
   async showApplePaySheet(options: ApplePayRequestOptions): Promise<{ success: boolean; }> {
       console.log('showApplePaySheet', options);
       return { success: false };
+  }
+
+  async addListener(eventName: string, listenerFunc: ListenerCallback): Promise<PluginListenerHandle> {
+    return super.addListener(eventName,listenerFunc);
   }
 }

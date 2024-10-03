@@ -16,7 +16,9 @@ npx cap sync
 * [`echo(...)`](#echo)
 * [`canMakePayments()`](#canmakepayments)
 * [`showApplePaySheet(...)`](#showapplepaysheet)
+* [`addListener(string, ...)`](#addlistenerstring-)
 * [Interfaces](#interfaces)
+* [Type Aliases](#type-aliases)
 
 </docgen-index>
 
@@ -64,19 +66,36 @@ showApplePaySheet(options: ApplePayRequestOptions) => Promise<{ success: boolean
 --------------------
 
 
+### addListener(string, ...)
+
+```typescript
+addListener(eventName: string, listenerFunc: ListenerCallback) => Promise<PluginListenerHandle>
+```
+
+| Param              | Type                                                          |
+| ------------------ | ------------------------------------------------------------- |
+| **`eventName`**    | <code>string</code>                                           |
+| **`listenerFunc`** | <code><a href="#listenercallback">ListenerCallback</a></code> |
+
+**Returns:** <code>Promise&lt;<a href="#pluginlistenerhandle">PluginListenerHandle</a>&gt;</code>
+
+--------------------
+
+
 ### Interfaces
 
 
 #### ApplePayRequestOptions
 
-| Prop                       | Type                              |
-| -------------------------- | --------------------------------- |
-| **`merchantId`**           | <code>string</code>               |
-| **`countryCode`**          | <code>string</code>               |
-| **`currencyCode`**         | <code>string</code>               |
-| **`supportedNetworks`**    | <code>string[]</code>             |
-| **`merchantCapabilities`** | <code>string[]</code>             |
-| **`paymentSummaryItems`**  | <code>PaymentSummaryItem[]</code> |
+| Prop                        | Type                                       |
+| --------------------------- | ------------------------------------------ |
+| **`merchantId`**            | <code>string</code>                        |
+| **`countryCode`**           | <code>string</code>                        |
+| **`currencyCode`**          | <code>string</code>                        |
+| **`supportedNetworks`**     | <code>string[]</code>                      |
+| **`merchantCapabilities`**  | <code>string[]</code>                      |
+| **`paymentSummaryItems`**   | <code>PaymentSummaryItem[]</code>          |
+| **`recurringSummaryItems`** | <code>RecurrentPaymentSummaryItem[]</code> |
 
 
 #### PaymentSummaryItem
@@ -85,5 +104,35 @@ showApplePaySheet(options: ApplePayRequestOptions) => Promise<{ success: boolean
 | ------------ | ------------------- |
 | **`label`**  | <code>string</code> |
 | **`amount`** | <code>string</code> |
+
+
+#### RecurrentPaymentSummaryItem
+
+| Prop                | Type                                                                                  |
+| ------------------- | ------------------------------------------------------------------------------------- |
+| **`startDate`**     | <code>string</code>                                                                   |
+| **`intervalUnit`**  | <code><a href="#recurringpaymentintervalunit">RecurringPaymentIntervalUnit</a></code> |
+| **`managementURL`** | <code>string</code>                                                                   |
+| **`intervalCount`** | <code>number</code>                                                                   |
+
+
+#### PluginListenerHandle
+
+| Prop         | Type                                      |
+| ------------ | ----------------------------------------- |
+| **`remove`** | <code>() =&gt; Promise&lt;void&gt;</code> |
+
+
+### Type Aliases
+
+
+#### RecurringPaymentIntervalUnit
+
+<code>'day' | 'week' | 'month' | 'year'</code>
+
+
+#### ListenerCallback
+
+<code>(err: any, ...args: any[]): void</code>
 
 </docgen-api>
