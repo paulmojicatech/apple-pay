@@ -8,7 +8,7 @@ export interface PaymentSummaryItem {
 export interface RecurrentPaymentSummaryItem extends PaymentSummaryItem {
   startDate: string;
   intervalUnit: string;
-  managementUrl: string;
+  managementURL: string;
   intervalCount?: number;
 }
 export interface ApplePayRequestOptions {
