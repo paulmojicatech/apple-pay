@@ -112,7 +112,7 @@ addListener(eventName: string, listenerFunc: ListenerCallback) => Promise<Plugin
 | ------------------- | ------------------- |
 | **`startDate`**     | <code>string</code> |
 | **`intervalUnit`**  | <code>string</code> |
-| **`managementUrl`** | <code>string</code> |
+| **`managementURL`** | <code>string</code> |
 | **`intervalCount`** | <code>number</code> |
 
 
