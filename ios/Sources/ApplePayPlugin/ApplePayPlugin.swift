@@ -40,8 +40,7 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorization
     guard let merchantIdentifier = call.getString("merchantId"),
           let countryCode = call.getString("countryCode"),
           let currencyCode = call.getString("currencyCode"),
-          let supportedNetworks = call.getArray("supportedNetworks", String.self),
-          let paymentSummaryItems = call.getArray("paymentSummaryItems", [String: Any].self) else {
+          let supportedNetworks = call.getArray("supportedNetworks", String.self) else {
       call.reject("Missing required parameters")
       return
     }
