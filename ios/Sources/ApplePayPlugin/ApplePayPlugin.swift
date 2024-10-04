@@ -78,8 +78,13 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorization
             call.reject("Invalid recurring payment item")
             return
           }
-          guard let intervalCount = item["intervalCount"] as? Int else {            
-            return 1
+          var intervalCount = 1
+          if (item["intervalCount"] != nil) {
+            guard let passedInCount = item["intervalCount"] as? Int else {
+              call.reject("Invalid interval count: \(item["intervalCount"]!)")
+              return
+            }
+            intervalCount = passedInCount
           }
           guard let startDate = formatter.date(from: startDateString) else {
               call.reject("Invalid date format for startDate: \(startDateString)")
