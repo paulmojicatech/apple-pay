@@ -16,6 +16,7 @@ npx cap sync
 * [`echo(...)`](#echo)
 * [`canMakePayments()`](#canmakepayments)
 * [`showApplePaySheet(...)`](#showapplepaysheet)
+* [`showInAppPurchase(...)`](#showinapppurchase)
 * [`addListener(string, ...)`](#addlistenerstring-)
 * [Interfaces](#interfaces)
 * [Type Aliases](#type-aliases)
@@ -60,6 +61,21 @@ showApplePaySheet(options: ApplePayRequestOptions) => Promise<{ success: boolean
 | Param         | Type                                                                      |
 | ------------- | ------------------------------------------------------------------------- |
 | **`options`** | <code><a href="#applepayrequestoptions">ApplePayRequestOptions</a></code> |
+
+**Returns:** <code>Promise&lt;{ success: boolean; }&gt;</code>
+
+--------------------
+
+
+### showInAppPurchase(...)
+
+```typescript
+showInAppPurchase(productIdentifiers: string[]) => Promise<{ success: boolean; }>
+```
+
+| Param                    | Type                  |
+| ------------------------ | --------------------- |
+| **`productIdentifiers`** | <code>string[]</code> |
 
 **Returns:** <code>Promise&lt;{ success: boolean; }&gt;</code>
 
