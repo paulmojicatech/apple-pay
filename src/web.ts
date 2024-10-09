@@ -18,8 +18,8 @@ export class ApplePayWeb extends WebPlugin implements ApplePayPlugin {
       return { success: false };
   }
 
-  async showInAppPurchase(productIdentifiers: string[]): Promise<{ success: boolean; }> {
-      console.log('showInAppPurchase', productIdentifiers);
+  async showInAppPurchaseSheet(options: {productIdentifiers: string[]}): Promise<{ success: boolean; }> {
+      console.log('showInAppPurchase', options);
       return { success: false };
   }
 

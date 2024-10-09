@@ -8,13 +8,14 @@ import StoreKit
  * here: https://capacitorjs.com/docs/plugins/ios
  */
 @objc(ApplePayPlugin)
-public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorizationViewControllerDelegate {
+public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorizationViewControllerDelegate, SKProductsRequestDelegate, SKPaymentTransactionObserver {
     public let identifier = "ApplePayPlugin"
     public let jsName = "ApplePay"
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "echo", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "canMakePayments", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "showApplePaySheet", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "showApplePaySheet", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "showInAppPurchaseSheet", returnType: CAPPluginReturnPromise)
     ]
     private let implementation = ApplePay()
 
@@ -128,12 +129,12 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorization
     DispatchQueue.main.async {
       self.bridge?.viewController?.present(paymentVC, animated: true, completion: nil)
     }
-    call.resolve([
-      "success": true
-    ])
-  }
+      call.resolve([
+        "success": true
+      ])
+    }
 
-  @objc func showInAppPurchaseSheet(_ call: CAPBridgedPlugin) {
+  @objc func showInAppPurchaseSheet(_ call: CAPPluginCall) {
     guard let productIdentifiers = call.getArray("productIdentifiers", String.self) else {
       call.reject("Missing required parameters")
       return
@@ -143,13 +144,14 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorization
 
   private func fetchProducts(productIdentifiers: [String]) {
     let productIdentifiersSet = Set(productIdentifiers)
-    productsRequest = SKProductsRequest(productIdentifiers: productIdentifiersSet)
-    productsRequest?.delegate = self
-    productsRequest?.start()
+    let productRequest = SKProductsRequest(productIdentifiers: productIdentifiersSet)
+    productRequest.delegate = self
+    productRequest.start()
   }
+  
 
   public func productsRequest(_ request: SKProductsRequest, didReceive response: SKProductsResponse) {
-    availableProducts = response.products
+    let availableProducts = response.products
     if availableProducts.isEmpty {
         // Handle no products found
         return
@@ -175,7 +177,7 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorization
               if let receiptURL = Bundle.main.appStoreReceiptURL,
                   let receiptData = try? Data(contentsOf: receiptURL) {
                   let receiptString = receiptData.base64EncodedString(options: [])
-                  notifyListeners("purchaseSuccess", data: [
+                  notifyListeners("inAppPurchaseSuccess", data: [
                       "productIdentifier": transaction.payment.productIdentifier,
                       "receipt": receiptString
                   ])
@@ -184,7 +186,7 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorization
           case .failed:
               // Handle failed purchase
               if let error = transaction.error as NSError?, error.code != SKError.paymentCancelled.rawValue {
-                  notifyListeners("purchaseFailed", data: [
+                  notifyListeners("inAppPurchaseFailed", data: [
                       "error": error.localizedDescription
                   ])
               }
@@ -206,7 +208,7 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorization
       completion(PKPaymentAuthorizationResult(status: .success, errors: nil))
 
       // Notify the bridge that the payment was successful
-      self.notifyListeners("paymentSuccess", data: [
+      self.notifyListeners("applePayPaymentSuccess", data: [
           "status": "success",
           "paymentData": payment.token.paymentData.base64EncodedString()
       ])
