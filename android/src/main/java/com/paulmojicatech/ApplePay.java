@@ -12,5 +12,5 @@ public class ApplePay {
     public Boolean canMakePayments() {
         Log.i("canMakePayments", "false");
         return false;
-    }
+    }    
 }

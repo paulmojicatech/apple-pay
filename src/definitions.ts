@@ -27,5 +27,6 @@ export interface ApplePayPlugin {
   echo(options: { value: string }): Promise<{ value: string }>;
   canMakePayments(): Promise<{ canMakePayments: boolean }>;
   showApplePaySheet(options: ApplePayRequestOptions): Promise<{ success: boolean }>;
+  showInAppPurchase(productIdentifiers: string[]): Promise<{ success: boolean }>;
   addListener(eventName: string, listenerFunc: ListenerCallback): Promise<PluginListenerHandle>;
 }

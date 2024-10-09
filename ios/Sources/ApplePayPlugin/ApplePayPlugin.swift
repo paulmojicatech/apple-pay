@@ -1,6 +1,7 @@
 import Foundation
 import Capacitor
 import PassKit
+import StoreKit
 
 /**
  * Please read the Capacitor iOS Plugin Development Guide
@@ -131,6 +132,74 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorization
       "success": true
     ])
   }
+
+  @objc func showInAppPurchaseSheet(_ call: CAPBridgedPlugin) {
+    guard let productIdentifiers = call.getArray("productIdentifiers", String.self) else {
+      call.reject("Missing required parameters")
+      return
+    }
+    fetchProducts(productIdentifiers: productIdentifiers)
+  }
+
+  private func fetchProducts(productIdentifiers: [String]) {
+    let productIdentifiersSet = Set(productIdentifiers)
+    productsRequest = SKProductsRequest(productIdentifiers: productIdentifiersSet)
+    productsRequest?.delegate = self
+    productsRequest?.start()
+  }
+
+  public func productsRequest(_ request: SKProductsRequest, didReceive response: SKProductsResponse) {
+    availableProducts = response.products
+    if availableProducts.isEmpty {
+        // Handle no products found
+        return
+    }
+    // Display the products to the user and allow them to make a purchase
+    // For simplicity, we'll just purchase the first product in the list
+    if let firstProduct = availableProducts.first {
+        purchase(product: firstProduct)
+    }
+  }
+
+  private func purchase(product: SKProduct) {
+    let payment = SKPayment(product: product)
+    SKPaymentQueue.default().add(self)
+    SKPaymentQueue.default().add(payment)
+  }
+
+  public func paymentQueue(_ queue: SKPaymentQueue, updatedTransactions transactions: [SKPaymentTransaction]) {
+      for transaction in transactions {
+          switch transaction.transactionState {
+          case .purchased:
+              // Handle successful purchase
+              if let receiptURL = Bundle.main.appStoreReceiptURL,
+                  let receiptData = try? Data(contentsOf: receiptURL) {
+                  let receiptString = receiptData.base64EncodedString(options: [])
+                  notifyListeners("purchaseSuccess", data: [
+                      "productIdentifier": transaction.payment.productIdentifier,
+                      "receipt": receiptString
+                  ])
+              }
+              SKPaymentQueue.default().finishTransaction(transaction)
+          case .failed:
+              // Handle failed purchase
+              if let error = transaction.error as NSError?, error.code != SKError.paymentCancelled.rawValue {
+                  notifyListeners("purchaseFailed", data: [
+                      "error": error.localizedDescription
+                  ])
+              }
+              SKPaymentQueue.default().finishTransaction(transaction)
+          case .restored:
+              // Handle restored purchase
+              SKPaymentQueue.default().finishTransaction(transaction)
+          case .deferred, .purchasing:
+              break
+          @unknown default:
+              break
+          }
+      }
+  }
+
 
   public func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController, didAuthorizePayment payment: PKPayment, handler completion: @escaping (PKPaymentAuthorizationResult) -> Void) {
       // Handle the authorized payment here

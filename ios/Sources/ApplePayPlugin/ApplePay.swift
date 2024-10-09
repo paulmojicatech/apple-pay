@@ -15,4 +15,9 @@ import Foundation
         print("showApplePaySheet")
         return value
     }
+
+    @objc public func showInAppPurchaseSheet(_ value: Bool) -> Bool {
+        print("showInAppPurchaseSheet")
+        return value
+    }
 }
