@@ -1,19 +1,21 @@
 import Foundation
 import Capacitor
 import PassKit
+import StoreKit
 
 /**
  * Please read the Capacitor iOS Plugin Development Guide
  * here: https://capacitorjs.com/docs/plugins/ios
  */
 @objc(ApplePayPlugin)
-public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorizationViewControllerDelegate {
+public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorizationViewControllerDelegate, SKProductsRequestDelegate, SKPaymentTransactionObserver {
     public let identifier = "ApplePayPlugin"
     public let jsName = "ApplePay"
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "echo", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "canMakePayments", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "showApplePaySheet", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "showApplePaySheet", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "showInAppPurchaseSheet", returnType: CAPPluginReturnPromise)
     ]
     private let implementation = ApplePay()
 
@@ -127,17 +129,86 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorization
     DispatchQueue.main.async {
       self.bridge?.viewController?.present(paymentVC, animated: true, completion: nil)
     }
-    call.resolve([
-      "success": true
-    ])
+      call.resolve([
+        "success": true
+      ])
+    }
+
+  @objc func showInAppPurchaseSheet(_ call: CAPPluginCall) {
+    guard let productIdentifiers = call.getArray("productIdentifiers", String.self) else {
+      call.reject("Missing required parameters")
+      return
+    }
+    fetchProducts(productIdentifiers: productIdentifiers)
   }
+
+  private func fetchProducts(productIdentifiers: [String]) {
+    let productIdentifiersSet = Set(productIdentifiers)
+    let productRequest = SKProductsRequest(productIdentifiers: productIdentifiersSet)
+    productRequest.delegate = self
+    productRequest.start()
+  }
+  
+
+  public func productsRequest(_ request: SKProductsRequest, didReceive response: SKProductsResponse) {
+    let availableProducts = response.products
+    if availableProducts.isEmpty {
+        // Handle no products found
+        return
+    }
+    // Display the products to the user and allow them to make a purchase
+    // For simplicity, we'll just purchase the first product in the list
+    if let firstProduct = availableProducts.first {
+        purchase(product: firstProduct)
+    }
+  }
+
+  private func purchase(product: SKProduct) {
+    let payment = SKPayment(product: product)
+    SKPaymentQueue.default().add(self)
+    SKPaymentQueue.default().add(payment)
+  }
+
+  public func paymentQueue(_ queue: SKPaymentQueue, updatedTransactions transactions: [SKPaymentTransaction]) {
+      for transaction in transactions {
+          switch transaction.transactionState {
+          case .purchased:
+              // Handle successful purchase
+              if let receiptURL = Bundle.main.appStoreReceiptURL,
+                  let receiptData = try? Data(contentsOf: receiptURL) {
+                  let receiptString = receiptData.base64EncodedString(options: [])
+                  notifyListeners("inAppPurchaseSuccess", data: [
+                      "productIdentifier": transaction.payment.productIdentifier,
+                      "receipt": receiptString
+                  ])
+              }
+              SKPaymentQueue.default().finishTransaction(transaction)
+          case .failed:
+              // Handle failed purchase
+              if let error = transaction.error as NSError?, error.code != SKError.paymentCancelled.rawValue {
+                  notifyListeners("inAppPurchaseFailed", data: [
+                      "error": error.localizedDescription
+                  ])
+              }
+              SKPaymentQueue.default().finishTransaction(transaction)
+          case .restored:
+              // Handle restored purchase
+              SKPaymentQueue.default().finishTransaction(transaction)
+          case .deferred, .purchasing:
+              break
+          @unknown default:
+              break
+          }
+      }
+  }
+
 
   public func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController, didAuthorizePayment payment: PKPayment, handler completion: @escaping (PKPaymentAuthorizationResult) -> Void) {
       // Handle the authorized payment here
       completion(PKPaymentAuthorizationResult(status: .success, errors: nil))
 
       // Notify the bridge that the payment was successful
-      self.notifyListeners("paymentSuccess", data: [
+      self.notifyListeners("applePayPaymentSuccess", data: [
           "status": "success",
           "paymentData": payment.token.paymentData.base64EncodedString()
       ])
