@@ -15,7 +15,8 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorization
         CAPPluginMethod(name: "echo", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "canMakePayments", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "showApplePaySheet", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "showInAppPurchaseSheet", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "showInAppPurchaseSheet", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "restoreInAppPurchase", returnType: CAPPluginReturnPromise)
     ]
     private let implementation = ApplePay()
 
@@ -59,8 +60,8 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorization
         guard let label = item["label"] as? String,
               let amountString = item["amount"] as? String,
               let amount = NSDecimalNumber(string: amountString) as? NSDecimalNumber else {
-          return nil
-        }
+                return nil
+              }
         return PKPaymentSummaryItem(label: label, amount: amount)
       }
     }
@@ -129,10 +130,10 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorization
     DispatchQueue.main.async {
       self.bridge?.viewController?.present(paymentVC, animated: true, completion: nil)
     }
-      call.resolve([
-        "success": true
-      ])
-    }
+    call.resolve([
+      "success": true
+    ])
+  }
 
   @objc func showInAppPurchaseSheet(_ call: CAPPluginCall) {
     guard let productIdentifiers = call.getArray("productIdentifiers", String.self) else {
@@ -140,6 +141,14 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorization
       return
     }
     fetchProducts(productIdentifiers: productIdentifiers)
+  }
+
+  @objc func restoreInAppPurchase(_ call: CAPPluginCall) {
+    SKPaymentQueue.default().add(self)
+    SKPaymentQueue.default().restoreCompletedTransactions()
+    call.resolve([
+      "success": true
+    ])
   }
 
   private func fetchProducts(productIdentifiers: [String]) {
@@ -192,7 +201,15 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorization
               }
               SKPaymentQueue.default().finishTransaction(transaction)
           case .restored:
-              // Handle restored purchase
+              // Handle restored purchase            
+              if let receiptURL = Bundle.main.appStoreReceiptURL,
+                  let receiptData = try? Data(contentsOf: receiptURL) {
+                  let receiptString = receiptData.base64EncodedString(options: [])
+                  notifyListeners("restorePurchaseSuccess", data: [
+                      "productIdentifier": transaction.payment.productIdentifier,
+                      "receipt": receiptString
+                  ])
+              }
               SKPaymentQueue.default().finishTransaction(transaction)
           case .deferred, .purchasing:
               break
@@ -202,6 +219,9 @@ public class ApplePayPlugin: CAPPlugin, CAPBridgedPlugin, PKPaymentAuthorization
       }
   }
 
+  public func paymentQueueRestoreCompletedTransactionsFinished(_ queue: SKPaymentQueue) {
+      notifyListeners("restoreCompleted", data: [:])
+  }
 
   public func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController, didAuthorizePayment payment: PKPayment, handler completion: @escaping (PKPaymentAuthorizationResult) -> Void) {
       // Handle the authorized payment here

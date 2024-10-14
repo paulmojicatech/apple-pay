@@ -18,6 +18,7 @@ npx cap sync
 * [`showApplePaySheet(...)`](#showapplepaysheet)
 * [`showInAppPurchaseSheet(...)`](#showinapppurchasesheet)
 * [`addListener(string, ...)`](#addlistenerstring-)
+* [`restoreInAppPurchase()`](#restoreinapppurchase)
 * [Interfaces](#interfaces)
 * [Type Aliases](#type-aliases)
 
@@ -94,6 +95,17 @@ addListener(eventName: string, listenerFunc: ListenerCallback) => Promise<Plugin
 | **`listenerFunc`** | <code><a href="#listenercallback">ListenerCallback</a></code> |
 
 **Returns:** <code>Promise&lt;<a href="#pluginlistenerhandle">PluginListenerHandle</a>&gt;</code>
+
+--------------------
+
+
+### restoreInAppPurchase()
+
+```typescript
+restoreInAppPurchase() => Promise<{ success: boolean; }>
+```
+
+**Returns:** <code>Promise&lt;{ success: boolean; }&gt;</code>
 
 --------------------
 

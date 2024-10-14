@@ -26,4 +26,8 @@ export class ApplePayWeb extends WebPlugin implements ApplePayPlugin {
   async addListener(eventName: string, listenerFunc: ListenerCallback): Promise<PluginListenerHandle> {
     return super.addListener(eventName,listenerFunc);
   }
+
+  async restoreInAppPurchase(): Promise<{ success: boolean }> {
+    return { success: false };
+  }
 }
